@@ -10,7 +10,9 @@ on:
     paths:
       - "run_mern_stack_with_docker_compose/frontend/**"
       - ".github/workflows/frontend.yaml"
-      
+  
+  workflow_dispatch:
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
