@@ -1,25 +1,28 @@
-###Ci/cd for firebase hosting in Dev ########################
-name: Firebase Hosting Deploy
+###Frontend CI - Build & Push Docker Image to Artifact Registry ########################
+name: Frontend CI 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 on:
   pull_request_target:
     branches:
-      - dev
+      - learning
     paths:
-      - "apps/frontend/**"
-      - "firebase.json"
-      - ".github/workflows/firebase-frontend-dev.yaml"
+      - "run_mern_stack_with_docker_compose/frontend/**"
+      - ".github/workflows/frontend.yaml"
       
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
       id-token: write   #  required for Workload Identity Federation
-
+    env:
+      PROJECT_ID: corded-forge-481305-n1
+      LOCATION: asia-south2
+      REPOSITORY: ci-repo
+      IMAGE_NAME: frontend
     steps:
       # 1. Checkout repo
       - name: Checkout repository
@@ -36,18 +39,20 @@ jobs:
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
 
-      # 4. Install Firebase CLI
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+      # 4. Configure Docker to use Artifact Registry
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.LOCATION }}-docker.pkg.dev --quiet
 
-      # 5. Install dependencies (frontend)
-      - name: Install dependencies
-        run: npm install
-
-      # 6. Build the frontend
-      - name: Build frontend
-        run: npm run build --workspace apps/frontend   # modify as per your workspace
-
-      # 7. Deploy to Firebase Hosting via service account
-      - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --project rapidqs-lightspeed
+     # 5. Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
+            ./apps/frontend
+            
+     # 6. Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push \
+            ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:lat
