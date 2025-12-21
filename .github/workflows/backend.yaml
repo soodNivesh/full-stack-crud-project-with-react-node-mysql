@@ -1,0 +1,60 @@
+###backend CI - Build & Push Docker Image to Artifact Registry ########################
+name: Backend CI 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - learning
+    paths:
+      - "run_mern_stack_with_docker_compose/backend/**"
+      - ".github/workflows/backend.yaml"
+  
+  #workflow_dispatch:
+  
+jobs:
+  build-and-push-backend:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write   #  required for Workload Identity Federation
+    env:
+      PROJECT_ID: corded-forge-481305-n1
+      LOCATION: asia-south2
+      REPOSITORY: ci-repo
+      IMAGE_NAME: backend
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Authenticate to GCP using Workload Identity Federation
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+      # 3. Install gcloud CLI
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4. Configure Docker to use Artifact Registry
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.LOCATION }}-docker.pkg.dev --quiet
+
+     # 5. Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
+            ./run_mern_stack_with_docker_compose/backend
+            
+     # 6. Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push \
+            ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
