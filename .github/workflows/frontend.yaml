@@ -1,1 +1,53 @@
+###Ci/cd for firebase hosting in Dev ########################
+name: Firebase Hosting Deploy
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  pull_request_target:
+    branches:
+      - dev
+    paths:
+      - "apps/frontend/**"
+      - "firebase.json"
+      - ".github/workflows/firebase-frontend-dev.yaml"
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write   #  required for Workload Identity Federation
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Authenticate to GCP using Workload Identity Federation
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+      # 3. Install gcloud CLI
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4. Install Firebase CLI
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      # 5. Install dependencies (frontend)
+      - name: Install dependencies
+        run: npm install
+
+      # 6. Build the frontend
+      - name: Build frontend
+        run: npm run build --workspace apps/frontend   # modify as per your workspace
+
+      # 7. Deploy to Firebase Hosting via service account
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --project rapidqs-lightspeed
