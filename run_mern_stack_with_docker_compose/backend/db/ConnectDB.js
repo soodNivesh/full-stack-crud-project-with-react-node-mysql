@@ -1,5 +1,6 @@
 //importing the mysql2/promise for using async await in conenction function and in querys
-const mysql = require("mysql2/promise");
+//const mysql = require("mysql2/promise");
+const { Pool } = require("pg");
 
 //the async await function which connects to the database using the credentials in the .env files
 const ConnectDB = async () => {
