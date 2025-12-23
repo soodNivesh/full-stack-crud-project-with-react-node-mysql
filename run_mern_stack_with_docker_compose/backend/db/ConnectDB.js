@@ -4,11 +4,17 @@ const { Pool } = require("pg");
 
 //the async await function which connects to the database using the credentials in the .env files
 const ConnectDB = async () => {
-  const pool = await mysql.createPool({
+    await pool.query("SELECT 1");
+  console.log("✅ PostgreSQL connected");
+ };
+     
+  //const pool = await mysql.createPool({
+  const pool = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
+    port: 5432,
     waitForConnections: process.env.DB_WAITFORCONNECTIONS,
     connectionLimit: process.env.DB_CONNECTIONLIMIT,
     queueLimit: process.env.DB_QUEUELIMIT
@@ -37,4 +43,4 @@ const ConnectDB = async () => {
 };
 
 //exporting the function
-module.exports = ConnectDB;
+module.exports = { pool, ConnectDB };
