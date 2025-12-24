@@ -1,7 +1,10 @@
-// Importing the pg package for PostgreSQL connection
+//importing the mysql2/promise for using async await in conenction function and in querys
+//const mysql = require("mysql2/promise");
 const { Pool } = require("pg");
 
- const pool = new Pool({
+     
+  //const pool = await mysql.createPool({
+  const pool = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
