@@ -26,18 +26,23 @@ let pool;
 
     // pass the pool to the routes
     app.use((req, res, next) => {
-        req.pool = pool;
-        next();
-    });
+           req.pool = pool;
+           next();
+         });
 
     // use the router
     app.use("/", router);
 
     // start the server
     (async () => {
-       await ConnectDB();
+                 await ConnectDB();
 
-     app.listen(port,"0.0.0.0", () => {
-        console.log(`Example app listening on port http://localhost:${port}`);
-    });
-})();
+                 app.listen(port,"0.0.0.0", () => {
+                         console.log(`Example app listening on port http://localhost:${port}`);
+                    });
+
+                 }
+    )
+}
+)
+    ();
