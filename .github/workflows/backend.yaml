@@ -25,6 +25,7 @@ jobs:
       LOCATION: asia-south2
       REPOSITORY: ci-repo
       IMAGE_NAME: backend
+      IMAGE_TAG: ${{ github.sha }}
     steps:
       # 1. Checkout repo
       - name: Checkout repository
@@ -50,11 +51,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -t ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             ./run_mern_stack_with_docker_compose/backend
             
      # 6. Push Docker image
       - name: Push Docker image
         run: |
           docker push \
-            ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
