@@ -1,4 +1,4 @@
-###backend CI - Build & Push Docker Image to Artifact Registry ########################
+###Backend CI - Build & Push Docker Image to AR ########################
 name: Backend CI 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
