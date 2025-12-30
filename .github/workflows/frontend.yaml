@@ -1,4 +1,4 @@
-###Frontend CI - Build & Push Docker Image to Artifact Registry ########################
+### Frontend CI - Build & Push Docker Image to Artifact Registry (Repo) ########################
 name: Frontend CI 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
